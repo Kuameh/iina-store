@@ -68,6 +68,28 @@ function safeDelete(path: string | null | undefined): void {
   }
 }
 
+/**
+ * Explicitly create a directory (mkdir -p semantics) before writing into it.
+ *
+ * IINA guarantees the top-level pseudo-folders (@tmp/, @data/) already
+ * exist, but it has no reason to auto-create a subdirectory this plugin
+ * invents underneath them (e.g. @tmp/iina-store/) -- and unlike `unzip -d`,
+ * which creates its own target directory, `iina.http.download()` does not
+ * appear to create missing parent directories for its destination path
+ * (confirmed live: a download "succeeded" but iina.file.exists() on the
+ * destination came back false). Calling this explicitly before both the
+ * download and the extraction removes that gap instead of assuming either
+ * API auto-creates directories.
+ */
+async function ensureDir(path: string): Promise<void> {
+  const result = await iina.utils.exec("/bin/mkdir", ["-p", path]);
+  if (result.status !== 0) {
+    throw new Error(
+      `Failed to create directory ${path} (mkdir exited with status ${result.status}): ${result.stderr}`,
+    );
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Manifest read/write
 // ---------------------------------------------------------------------------
@@ -172,6 +194,7 @@ export async function installPlugin(
 
     // (3) download to an isolated tmp path.
     onProgress("downloading");
+    await ensureDir(iina.utils.resolvePath(TMP_ROOT));
     try {
       await iina.http.download(url, zipPath);
     } catch (err) {
@@ -189,8 +212,12 @@ export async function installPlugin(
     onProgress("validating");
     validateZipFile(zipPath);
 
-    // (5) extract into an isolated quarantine directory.
+    // (5) extract into an isolated quarantine directory. unzip -d normally
+    // creates its own target directory, but create it explicitly anyway
+    // rather than relying on that -- consistent with the ensureDir call
+    // above, and cheap/idempotent either way.
     onProgress("extracting");
+    await ensureDir(quarantineDir);
     const unzipResult = await iina.utils.exec("/usr/bin/unzip", [
       "-o",
       zipPath,
