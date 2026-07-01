@@ -108,6 +108,15 @@ export function postOnly(type: string, payload: any): void {
  * Subscribe to a push-only event from the plugin entry script
  * (e.g. "event:install-progress", "event:select-entry").
  *
+ * The entry script always posts the full envelope, shaped like the
+ * BridgeEvent union in src/types.ts (a "type" field plus a "payload"
+ * field), as the message data -- see broadcastInstallProgress,
+ * broadcastCatalogUpdated, and handleWindowFocusEntry in src/index.ts.
+ * So `data` received here is that whole envelope, not just the inner
+ * payload. Every caller of `subscribe` wants just the payload (e.g.
+ * `payload.id`, `payload.stage`), so unwrap it here once rather than in
+ * every handler.
+ *
  * Returns an unsubscribe function. NOTE: the webview-side `iina.onMessage`
  * API (per iina-api.md) exposes no listener-removal method, so if the
  * underlying runtime doesn't support unsubscribing, this returns a no-op
@@ -118,7 +127,7 @@ export function subscribe<TPayload = BridgeEvent["payload"]>(
   handler: (payload: TPayload) => void,
 ): () => void {
   iina.onMessage(type, (data: any) => {
-    handler(data);
+    handler(data && typeof data === "object" && "payload" in data ? data.payload : data);
   });
 
   // No-op: iina.onMessage has no corresponding "off"/"removeListener" in
