@@ -1,0 +1,26 @@
+{
+  "name": "Iina Store",
+  "identifier": "com.example.iina-store",
+  "version": "0.0.1",
+  "description": "Iina plugin store ",
+  "author": {
+    "name": "Caleb Ashiangmor",
+    "email": "schniffenhousen@gmail.com",
+    "url": "https://github.com/kuameh"
+  },
+  "entry": "dist/index.js",
+  "globalEntry": "dist/global.js",
+  "permissions": [
+    "show-osd",
+    "show-alert",
+    "video-overlay",
+    "network-request",
+    "file-system"
+  ],
+  "sidebarTab": {
+    "name": "Iina Store"
+  },
+  "allowedDomains": ["*"],
+  "preferencesPage": "pref.html",
+  "preferenceDefaults": {}
+}
