@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { sendRequest, postOnly, subscribe } from "../shared/bridge";
 import type {
   RegistryEntry,
   InstallStatus,
   CatalogSearchReply,
   CatalogUpdatedEvent,
+  InstallStatusReply,
 } from "../../src/types";
 import SearchBar from "../shared/components/SearchBar";
 import StatusBadge from "../shared/components/StatusBadge";
@@ -19,6 +20,17 @@ const App: React.FC = () => {
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // See ui/window/app.tsx's refreshStatuses for why this is necessary:
+  // catalog:search never returns status, so without an explicit fetch every
+  // plugin renders as "not-installed" on every fresh page load (i.e. every
+  // IINA restart), regardless of installed-manifest.json's actual contents.
+  const refreshStatuses = useCallback((ids: string[]) => {
+    if (ids.length === 0) return;
+    sendRequest<InstallStatusReply>("install:status", { ids }).then((reply) => {
+      setStatuses((prev) => ({ ...prev, ...reply.payload.statuses }));
+    });
+  }, []);
+
   useEffect(() => {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
@@ -29,6 +41,7 @@ const App: React.FC = () => {
         sort: "name",
       }).then((reply) => {
         setEntries(reply.payload.entries);
+        refreshStatuses(reply.payload.entries.map((entry) => entry.id));
       });
     }, SEARCH_DEBOUNCE_MS);
 
@@ -37,7 +50,7 @@ const App: React.FC = () => {
         clearTimeout(debounceRef.current);
       }
     };
-  }, [query, refreshTick]);
+  }, [query, refreshTick, refreshStatuses]);
 
   // Silently re-run the current search when the entry script reports a
   // live-registry refresh, so newly crawled/updated plugins show up

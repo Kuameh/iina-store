@@ -39,6 +39,21 @@ const App: React.FC = () => {
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Fetch install/update status for a set of entry ids and merge it into
+  // `statuses`. This has to be called explicitly after every entries load
+  // -- catalog:list/catalog:search only return catalog metadata, not
+  // status, so without this every plugin shows as "not-installed" on a
+  // fresh page load (i.e. after every IINA restart) regardless of what
+  // installed-manifest.json on disk actually says, since `statuses`
+  // otherwise only ever gets populated reactively as install/uninstall
+  // progress events complete in the current session.
+  const refreshStatuses = useCallback((ids: string[]) => {
+    if (ids.length === 0) return;
+    sendRequest<InstallStatusReply>("install:status", { ids }).then((reply) => {
+      setStatuses((prev) => ({ ...prev, ...reply.payload.statuses }));
+    });
+  }, []);
+
   // Initial catalog load. Seeds `sort` from the user's "defaultSort"
   // preference (read on the entry-script side, since this webview has no
   // direct access to iina.preferences) before the debounced search effect
@@ -48,6 +63,7 @@ const App: React.FC = () => {
       setEntries(reply.payload.entries);
       setCategories(reply.payload.categories);
       setSort(reply.payload.defaultSort);
+      refreshStatuses(reply.payload.entries.map((entry) => entry.id));
     });
   }, []);
 
@@ -62,12 +78,13 @@ const App: React.FC = () => {
       () => {
         sendRequest<CatalogListReply>("catalog:list", {}).then((reply) => {
           setCategories(reply.payload.categories);
+          refreshStatuses(reply.payload.entries.map((entry) => entry.id));
         });
         setRefreshTick((tick) => tick + 1);
       },
     );
     return unsubscribe;
-  }, []);
+  }, [refreshStatuses]);
 
   // Debounced search/filter/sort refresh.
   useEffect(() => {
@@ -81,6 +98,7 @@ const App: React.FC = () => {
         sort,
       }).then((reply) => {
         setEntries(reply.payload.entries);
+        refreshStatuses(reply.payload.entries.map((entry) => entry.id));
       });
     }, SEARCH_DEBOUNCE_MS);
 
@@ -89,7 +107,7 @@ const App: React.FC = () => {
         clearTimeout(debounceRef.current);
       }
     };
-  }, [query, category, sort, refreshTick]);
+  }, [query, category, sort, refreshTick, refreshStatuses]);
 
   // Install/uninstall progress events.
   useEffect(() => {
@@ -102,16 +120,12 @@ const App: React.FC = () => {
         }));
 
         if (payload.stage === "done") {
-          sendRequest<InstallStatusReply>("install:status", { ids: [payload.id] }).then(
-            (reply) => {
-              setStatuses((prev) => ({ ...prev, ...reply.payload.statuses }));
-            },
-          );
+          refreshStatuses([payload.id]);
         }
       },
     );
     return unsubscribe;
-  }, []);
+  }, [refreshStatuses]);
 
   // Sidebar hand-off: focus a specific entry in this window.
   useEffect(() => {

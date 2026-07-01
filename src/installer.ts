@@ -308,7 +308,7 @@ export async function installPlugin(
     // (14) done.
     onProgress("done");
     iina.core.osd(
-      `Installed ${entry.name}. Restart IINA to finish loading it.`,
+      `Installed ${entry.name}. Restart IINA, then enable it in Preferences > Plugins.`,
     );
   } catch (err) {
     const message = errorMessage(err);

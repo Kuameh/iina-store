@@ -13,7 +13,12 @@ const RestartPrompt: React.FC<RestartPromptProps> = ({ visible, onDismiss }) => 
 
   return (
     <div className="restart-prompt">
-      <span>Restart IINA to finish installing or uninstalling plugins.</span>
+      <span>
+        Restart IINA to finish installing or uninstalling plugins. After
+        restarting, open IINA's Preferences &rarr; Plugins and make sure the
+        new plugin is enabled &mdash; newly installed plugins aren't turned
+        on automatically.
+      </span>
       <button type="button" className="restart-prompt__dismiss" onClick={onDismiss}>
         Dismiss
       </button>
