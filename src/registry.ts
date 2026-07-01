@@ -1,14 +1,12 @@
 /**
  * Registry/catalog access layer.
  *
- * v2 extension point: all registry access in this codebase goes through
- * `searchRegistry` and `getEntryById` below -- nowhere else reaches into the
- * registry data directly. That means a future live GitHub-topic-crawl
- * feature can swap the internal data source (this bundled
- * resources/registry.json becoming a merge of the bundled snapshot plus
- * periodically refreshed crawl results, cached via iina.file) entirely
- * inside `loadRegistry` below, without changing either function's signature
- * or touching any caller.
+ * v2 extension point (now implemented): all registry access in this
+ * codebase goes through `searchRegistry` and `getEntryById` below --
+ * nowhere else reaches into the registry data directly. `applyLiveOverlay`
+ * below is how src/liveRegistry.ts (Upstash-backed, refreshed on a TTL)
+ * plugs a live-crawled dataset in on top of the bundled snapshot, without
+ * either function's signature or any caller needing to change.
  */
 
 import type { RegistryEntry, RegistryFile, SortOption } from "./types";
@@ -37,10 +35,88 @@ export {};
  * actual JSON contents are still validated by the registry-build tooling
  * and Info.json-identifier cross-checks in installer.ts at install time.
  */
-const cachedRegistry = registryJson as unknown as RegistryFile;
+const bundledRegistry = registryJson as unknown as RegistryFile;
+
+/**
+ * The live overlay fetched from Upstash by src/liveRegistry.ts, or null
+ * until the first successful fetch (or forever, if Upstash is unreachable
+ * or not configured -- in which case `loadRegistry` just returns the
+ * bundled data unmodified, same as before this feature existed).
+ */
+let liveOverlay: RegistryFile | null = null;
+
+/** Merged view, recomputed lazily whenever the overlay changes. */
+let mergedCache: RegistryFile | null = null;
+
+/**
+ * Called by src/liveRegistry.ts once it has a fresh (or cached-from-last-
+ * session) overlay to apply. Passing `null` clears back to bundled-only.
+ */
+export function applyLiveOverlay(overlay: RegistryFile | null): void {
+  liveOverlay = overlay;
+  mergedCache = null;
+}
+
+/**
+ * Merge the live overlay on top of the bundled catalog:
+ * - Entries present in both: keep the bundled (curated) entry's authored
+ *   fields (name, tagline, description, tags, category, install, update
+ *   mechanism, featured, source.type/curatorNote/addedAt) untouched, but
+ *   overlay the crawler-owned freshness fields (stars, lastUpdated,
+ *   update.ghVersionKnown, source.lastVerifiedAt, source.lastSeenAt) from
+ *   the live copy when present. This mirrors the provenance rule already
+ *   documented in resources/registry.json's _comment: a crawler pass must
+ *   never overwrite curator-authored fields.
+ * - Entries only present in the overlay (newly discovered by the crawler,
+ *   not yet curated): included as-is, already tagged source.type
+ *   "crawled" by scripts/crawl-registry.mjs.
+ */
+function mergeRegistries(bundled: RegistryFile, overlay: RegistryFile): RegistryFile {
+  const bundledById = new Map(bundled.entries.map((entry) => [entry.id, entry]));
+  const overlayById = new Map(overlay.entries.map((entry) => [entry.id, entry]));
+
+  const merged: RegistryEntry[] = bundled.entries.map((entry) => {
+    const live = overlayById.get(entry.id);
+    if (!live) {
+      return entry;
+    }
+    return {
+      ...entry,
+      stars: live.stars ?? entry.stars,
+      lastUpdated: live.lastUpdated ?? entry.lastUpdated,
+      update: {
+        ...entry.update,
+        ghVersionKnown: live.update?.ghVersionKnown ?? entry.update.ghVersionKnown,
+      },
+      source: {
+        ...entry.source,
+        lastVerifiedAt: live.source?.lastVerifiedAt ?? entry.source.lastVerifiedAt,
+        lastSeenAt: live.source?.lastSeenAt ?? entry.source.lastSeenAt,
+      },
+    };
+  });
+
+  for (const live of overlay.entries) {
+    if (!bundledById.has(live.id)) {
+      merged.push(live);
+    }
+  }
+
+  return {
+    schemaVersion: bundled.schemaVersion,
+    generatedAt: overlay.generatedAt || bundled.generatedAt,
+    entries: merged,
+  };
+}
 
 function loadRegistry(): RegistryFile {
-  return cachedRegistry;
+  if (!liveOverlay) {
+    return bundledRegistry;
+  }
+  if (!mergedCache) {
+    mergedCache = mergeRegistries(bundledRegistry, liveOverlay);
+  }
+  return mergedCache;
 }
 
 /** Look up a single catalog entry by its registry id (e.g. "gh:owner/repo"). */

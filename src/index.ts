@@ -20,10 +20,12 @@ export {};
 
 import { getEntryById, listCategories, searchRegistry } from "./registry";
 import { getInstallStatus, installPlugin, uninstallPlugin } from "./installer";
+import { loadCachedOverlayAtStartup, refreshLiveRegistry } from "./liveRegistry";
 import {
   CatalogDetailReply,
   CatalogListReply,
   CatalogSearchReply,
+  CatalogUpdatedEvent,
   ErrorReply,
   InstallAcceptedReply,
   InstallProgressEvent,
@@ -79,6 +81,12 @@ function broadcastInstallProgress(id: string, stage: string, message?: string): 
     type: "event:install-progress",
     payload: { id, stage: stage as InstallProgressEvent["payload"]["stage"], message },
   };
+  standaloneWindow.postMessage(evt.type, evt);
+  sidebar.postMessage(evt.type, evt);
+}
+
+function broadcastCatalogUpdated(): void {
+  const evt: CatalogUpdatedEvent = { type: "event:catalog-updated", payload: {} };
   standaloneWindow.postMessage(evt.type, evt);
   sidebar.postMessage(evt.type, evt);
 }
@@ -277,6 +285,14 @@ function registerHandlers(surface: Surface): void {
 
 console.log("Plugin is running");
 
+// Apply whatever live overlay was cached from last session immediately
+// (synchronous, no network), so a returning user doesn't wait on a fetch
+// before seeing last-known-fresh data. The async refresh below then checks
+// whether that cache is stale and, if so, fetches a new one from Upstash --
+// but if Upstash is unreachable or unconfigured, this all silently no-ops
+// and the plugin behaves exactly as it did before this feature existed.
+loadCachedOverlayAtStartup();
+
 standaloneWindow.loadFile("dist/ui/window/index.html");
 
 menu.addItem(
@@ -290,4 +306,12 @@ registerHandlers(sidebar);
 
 event.on("iina.window-loaded", () => {
   sidebar.loadFile("dist/ui/sidebar/index.html");
+});
+
+refreshLiveRegistry().then((changed) => {
+  if (changed) {
+    broadcastCatalogUpdated();
+  }
+}).catch((err) => {
+  console.log(`refreshLiveRegistry failed: ${errorMessage(err)}`);
 });

@@ -9,6 +9,7 @@ import type {
   InstallStatusReply,
   InstallProgressEvent,
   SelectEntryEvent,
+  CatalogUpdatedEvent,
 } from "../../src/types";
 import SearchBar from "../shared/components/SearchBar";
 import FilterChips from "./components/FilterChips";
@@ -34,6 +35,7 @@ const App: React.FC = () => {
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
   const [statuses, setStatuses] = useState<Record<string, InstallStatus>>({});
   const [progressByEntry, setProgressByEntry] = useState<Record<string, ProgressState>>({});
+  const [refreshTick, setRefreshTick] = useState(0);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -47,6 +49,24 @@ const App: React.FC = () => {
       setCategories(reply.payload.categories);
       setSort(reply.payload.defaultSort);
     });
+  }, []);
+
+  // The entry script pushes this once a background live-registry refresh
+  // (Upstash-backed, see src/liveRegistry.ts) has merged in new or updated
+  // entries. Re-fetch categories silently; deliberately do NOT touch
+  // `sort`/`query`/`category` here, since the user may already have set
+  // those and a background data refresh shouldn't reset their filters.
+  useEffect(() => {
+    const unsubscribe = subscribe<CatalogUpdatedEvent["payload"]>(
+      "event:catalog-updated",
+      () => {
+        sendRequest<CatalogListReply>("catalog:list", {}).then((reply) => {
+          setCategories(reply.payload.categories);
+        });
+        setRefreshTick((tick) => tick + 1);
+      },
+    );
+    return unsubscribe;
   }, []);
 
   // Debounced search/filter/sort refresh.
@@ -69,7 +89,7 @@ const App: React.FC = () => {
         clearTimeout(debounceRef.current);
       }
     };
-  }, [query, category, sort]);
+  }, [query, category, sort, refreshTick]);
 
   // Install/uninstall progress events.
   useEffect(() => {

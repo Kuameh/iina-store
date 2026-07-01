@@ -47,6 +47,8 @@ export interface RegistryEntrySource {
   curatorNote?: string | null;
   addedAt: string;
   lastVerifiedAt?: string;
+  /** Last time the live GitHub crawl observed this repo still exists/matches. Crawler-owned. */
+  lastSeenAt?: string;
 }
 
 /** A single plugin listing in the store's catalog. */
@@ -306,5 +308,17 @@ export interface SelectEntryEvent {
   };
 }
 
+/**
+ * Pushed once a live registry refresh (see src/liveRegistry.ts) has merged
+ * in new/updated data from Upstash. Carries no payload -- it's just a
+ * "your last catalog:list/catalog:search reply may now be stale, ask again"
+ * signal, since the actual merged data is re-fetched via the normal
+ * request/reply messages rather than being pushed wholesale.
+ */
+export interface CatalogUpdatedEvent {
+  type: "event:catalog-updated";
+  payload: {};
+}
+
 /** Union of every one-directional (non-request/reply) event on the bridge. */
-export type BridgeEvent = InstallProgressEvent | SelectEntryEvent;
+export type BridgeEvent = InstallProgressEvent | SelectEntryEvent | CatalogUpdatedEvent;

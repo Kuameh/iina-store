@@ -1,6 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { sendRequest, postOnly } from "../shared/bridge";
-import type { RegistryEntry, InstallStatus, CatalogSearchReply } from "../../src/types";
+import { sendRequest, postOnly, subscribe } from "../shared/bridge";
+import type {
+  RegistryEntry,
+  InstallStatus,
+  CatalogSearchReply,
+  CatalogUpdatedEvent,
+} from "../../src/types";
 import SearchBar from "../shared/components/SearchBar";
 import StatusBadge from "../shared/components/StatusBadge";
 
@@ -10,6 +15,7 @@ const App: React.FC = () => {
   const [query, setQuery] = useState("");
   const [entries, setEntries] = useState<RegistryEntry[]>([]);
   const [statuses, setStatuses] = useState<Record<string, InstallStatus>>({});
+  const [refreshTick, setRefreshTick] = useState(0);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -31,7 +37,18 @@ const App: React.FC = () => {
         clearTimeout(debounceRef.current);
       }
     };
-  }, [query]);
+  }, [query, refreshTick]);
+
+  // Silently re-run the current search when the entry script reports a
+  // live-registry refresh, so newly crawled/updated plugins show up
+  // without the user needing to retype their search.
+  useEffect(() => {
+    const unsubscribe = subscribe<CatalogUpdatedEvent["payload"]>(
+      "event:catalog-updated",
+      () => setRefreshTick((tick) => tick + 1),
+    );
+    return unsubscribe;
+  }, []);
 
   const handleRowClick = (id: string) => {
     postOnly("window:focus-entry", { id });

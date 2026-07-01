@@ -1,0 +1,26 @@
+name: Crawl plugin registry
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Crawl GitHub for iina-plugin repos and update the Upstash-hosted registry
+        run: node scripts/crawl-registry.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_WRITE_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_WRITE_TOKEN }}
