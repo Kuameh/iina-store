@@ -1,8 +1,16 @@
 {
   "name": "iina-store",
   "version": "0.0.1",
-  "description": "",
+  "description": "An IINA plugin that discovers, searches, and installs other IINA plugins from inside IINA itself.",
   "main": "src/index.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kuameh/iina-store.git"
+  },
+  "homepage": "https://github.com/Kuameh/iina-store#readme",
+  "bugs": {
+    "url": "https://github.com/Kuameh/iina-store/issues"
+  },
   "scripts": {
     "serve-window": "parcel serve ui/window/index.html --dist-dir dist/ui/window",
     "serve-sidebar": "parcel serve ui/sidebar/index.html --dist-dir dist/ui/sidebar",
@@ -10,7 +18,11 @@
     "typecheck": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": {
+    "name": "Caleb Ashiangmor",
+    "email": "schniffenhousen@gmail.com",
+    "url": "https://github.com/kuameh"
+  },
   "license": "ISC",
   "devDependencies": {
     "@parcel/transformer-sass": "^2.8.3",

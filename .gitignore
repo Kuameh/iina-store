@@ -123,5 +123,4 @@ out
 .vscode/
 *.js.map
 *.css.map
-package-lock.json
 .claude/

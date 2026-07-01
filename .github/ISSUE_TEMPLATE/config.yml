@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Question or discussion
+    url: https://github.com/Kuameh/iina-store/discussions
+    about: For questions that aren't a bug report or a plugin submission

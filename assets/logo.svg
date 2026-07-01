@@ -1,0 +1,16 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img">
+  <title>Iina Store logo</title>
+  <desc>A rounded square icon with a 2x2 grid of tiles, one containing a play triangle, representing a plugin store for the IINA media player.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4c94ff"/>
+      <stop offset="100%" stop-color="#1541a6"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect x="96" y="96" width="140" height="140" rx="32" fill="#ffffff" opacity="0.85"/>
+  <rect x="276" y="96" width="140" height="140" rx="32" fill="#ffffff" opacity="0.85"/>
+  <rect x="96" y="276" width="140" height="140" rx="32" fill="#ffffff" opacity="0.85"/>
+  <rect x="276" y="276" width="140" height="140" rx="32" fill="#ffffff"/>
+  <polygon points="322,314 322,378 374,346" fill="#1a56d6"/>
+</svg>
