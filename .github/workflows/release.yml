@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - name: Pack the plugin
+        id: pack
+        run: |
+          VERSION=$(node -p "require('./Info.json').version")
+          FILENAME="iina-store-${VERSION}.iinaplgz"
+          # Replicates iina-plugin pack's exact packing command (see
+          # iina-plugin/main.swift in iina/iina) so this asset is identical
+          # to what running the real CLI locally would produce: Info.json
+          # stays at the zip's top level, node_modules and dotfiles excluded.
+          zip -ryq "$FILENAME" . -x 'node_modules/*' -x '.*'
+          echo "filename=$FILENAME" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" "${{ steps.pack.outputs.filename }}" \
+            --title "${{ github.ref_name }}" \
+            --generate-notes

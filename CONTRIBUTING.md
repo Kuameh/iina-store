@@ -81,6 +81,25 @@ A few things worth knowing before you dig in:
 - If you touched the install/uninstall flow, describe how you tested it
   (ideally against a real plugin, not just `npm run build` succeeding).
 
+### Cutting a release
+
+(Maintainers only.) Pushing a tag matching `v*` runs
+[`.github/workflows/release.yml`](.github/workflows/release.yml), which
+builds the plugin and packages it exactly the way the real `iina-plugin
+pack` CLI does — `zip -ryq <name>-<version>.iinaplgz . -x 'node_modules/*'
+-x '.*'` from the plugin root, verified directly against
+[`iina-plugin`'s own source](https://github.com/iina/iina/blob/master/iina-plugin/main.swift)
+rather than assumed — then attaches the result to a new GitHub Release.
+
+Before tagging:
+
+1. Bump `version` in [`Info.json`](Info.json) (the packaged filename comes
+   from this field, not the git tag)
+2. Bump `ghVersion` in `Info.json` by 1 so IINA's own auto-update check
+   (via the `ghRepo`/`ghVersion` fields) notices the new release for anyone
+   who already has it installed
+3. `git tag v<version> && git push origin v<version>`
+
 ## Code of conduct
 
 This project follows the [Contributor Covenant](CODE_OF_CONDUCT.md).

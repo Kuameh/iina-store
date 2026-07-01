@@ -24,5 +24,7 @@
   "preferenceDefaults": {
     "showOnlyVerified": true,
     "defaultSort": "featured"
-  }
+  },
+  "ghRepo": "Kuameh/iina-store",
+  "ghVersion": 1
 }
