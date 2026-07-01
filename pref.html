@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iina Store Preferences</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      padding: 16px;
+      font-size: 13px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      color: #1f2023;
+      background: none;
+    }
+
+    .pref-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .pref-row:last-child {
+      border-bottom: none;
+    }
+
+    .pref-row label {
+      flex: 1;
+    }
+
+    .pref-row__hint {
+      display: block;
+      margin-top: 2px;
+      font-size: 11px;
+      color: #6b6f76;
+    }
+
+    select,
+    input[type="checkbox"] {
+      accent-color: #2d7dfb;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        color: #dadada;
+      }
+
+      .pref-row {
+        border-bottom-color: rgba(255, 255, 255, 0.14);
+      }
+
+      .pref-row__hint {
+        color: #9a9ea6;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="pref-row">
+    <label for="show-only-verified">
+      Show only verified plugins
+      <span class="pref-row__hint">Hide catalog entries that have not been verified installable.</span>
+    </label>
+    <input id="show-only-verified" type="checkbox" data-type="bool" data-pref-key="showOnlyVerified" checked />
+  </div>
+
+  <div class="pref-row">
+    <label for="default-sort">
+      Default sort order
+      <span class="pref-row__hint">Used when the store window first loads the catalog.</span>
+    </label>
+    <select id="default-sort" name="defaultSort">
+      <option value="name">Name</option>
+      <option value="stars">Stars</option>
+      <option value="recency">Recency</option>
+      <option value="featured">Featured</option>
+    </select>
+  </div>
+</body>
+
+</html>
