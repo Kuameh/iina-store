@@ -1,0 +1,310 @@
+// Styles specific to the standalone window surface. Shared tokens and the
+// SearchBar/StatusBadge component styles live in ui/shared.scss.
+
+.window-app {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.window-app__toolbar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+
+    .search-bar {
+        flex: 1;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// FilterChips
+// ---------------------------------------------------------------------------
+
+.filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.chip {
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    cursor: pointer;
+
+    &:hover {
+        background: var(--surface-hover);
+    }
+
+    &--active {
+        color: var(--accent-contrast);
+        background: var(--accent);
+        border-color: var(--accent);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// SortMenu
+// ---------------------------------------------------------------------------
+
+.sort-menu {
+    padding: 6px 8px;
+    font-size: 13px;
+    color: var(--text-primary);
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+// ---------------------------------------------------------------------------
+// RestartPrompt
+// ---------------------------------------------------------------------------
+
+.restart-prompt {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--text-primary);
+    background: var(--badge-amber-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.restart-prompt__dismiss {
+    padding: 2px 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--text-primary);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// PluginGrid / PluginCard
+// ---------------------------------------------------------------------------
+
+.plugin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.plugin-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+
+    &:hover {
+        background: var(--surface-hover);
+    }
+}
+
+.plugin-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.plugin-card__name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.plugin-card__tagline {
+    margin: 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.plugin-card__meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.plugin-card__category {
+    text-transform: capitalize;
+}
+
+.plugin-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.plugin-card__tag {
+    padding: 1px 6px;
+    font-size: 10px;
+    color: var(--badge-gray-text);
+    background: var(--badge-gray-bg);
+    border-radius: 999px;
+}
+
+// ---------------------------------------------------------------------------
+// PluginDetail
+// ---------------------------------------------------------------------------
+
+.plugin-detail {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(360px, 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+    overflow-y: auto;
+    background: var(--surface);
+    border-left: 1px solid var(--border-color);
+    box-shadow: -4px 0 16px rgba(0, 0, 0, 0.15);
+}
+
+.plugin-detail__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.plugin-detail__title {
+    margin: 0;
+    font-size: 16px;
+    color: var(--text-primary);
+}
+
+.plugin-detail__close {
+    padding: 2px 8px;
+    font-size: 16px;
+    line-height: 1;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--text-primary);
+    }
+}
+
+.plugin-detail__tagline {
+    margin: 0;
+    font-size: 12px;
+    font-style: italic;
+    color: var(--text-secondary);
+}
+
+.plugin-detail__description {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+}
+
+.plugin-detail__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.plugin-detail__tag {
+    padding: 1px 6px;
+    font-size: 10px;
+    color: var(--badge-gray-text);
+    background: var(--badge-gray-bg);
+    border-radius: 999px;
+}
+
+.plugin-detail__repo-link {
+    font-size: 12px;
+    color: var(--accent);
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.plugin-detail__actions {
+    margin-top: auto;
+    padding-top: 12px;
+}
+
+// ---------------------------------------------------------------------------
+// InstallButton
+// ---------------------------------------------------------------------------
+
+.install-button-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.install-button {
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-contrast);
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+
+    &:hover {
+        opacity: 0.9;
+    }
+
+    &--installed {
+        color: var(--text-secondary);
+        background: var(--badge-gray-bg);
+        cursor: default;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+
+    &--busy {
+        color: var(--text-secondary);
+        background: var(--badge-gray-bg);
+        cursor: default;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+
+    &:disabled {
+        cursor: default;
+    }
+}
+
+.install-button__link {
+    padding: 0;
+    font-size: 12px;
+    color: var(--danger-text);
+    background: transparent;
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
+}

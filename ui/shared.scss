@@ -25,3 +25,140 @@ body {
         color: #dadada;
     }
 }
+
+// ---------------------------------------------------------------------------
+// Design tokens
+// ---------------------------------------------------------------------------
+// Webview backgrounds are transparent by default (they follow the host
+// window's background), so surfaces below are drawn with subtle
+// semi-transparent fills rather than opaque page backgrounds.
+
+:root {
+    --text-primary: #1f2023;
+    --text-secondary: #6b6f76;
+    --border-color: rgba(0, 0, 0, 0.12);
+    --surface: rgba(0, 0, 0, 0.03);
+    --surface-hover: rgba(0, 0, 0, 0.06);
+    --accent: #2d7dfb;
+    --accent-contrast: #ffffff;
+    --badge-gray-bg: rgba(0, 0, 0, 0.08);
+    --badge-gray-text: #6b6f76;
+    --badge-green-bg: rgba(52, 168, 83, 0.16);
+    --badge-green-text: #1e7e34;
+    --badge-amber-bg: rgba(245, 166, 35, 0.18);
+    --badge-amber-text: #93650a;
+    --danger-text: #d64545;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --text-primary: #dadada;
+        --text-secondary: #9a9ea6;
+        --border-color: rgba(255, 255, 255, 0.14);
+        --surface: rgba(255, 255, 255, 0.06);
+        --surface-hover: rgba(255, 255, 255, 0.1);
+        --accent: #4c94ff;
+        --accent-contrast: #0c0c0d;
+        --badge-gray-bg: rgba(255, 255, 255, 0.1);
+        --badge-gray-text: #b7bac0;
+        --badge-green-bg: rgba(76, 217, 100, 0.2);
+        --badge-green-text: #7be08c;
+        --badge-amber-bg: rgba(255, 189, 68, 0.22);
+        --badge-amber-text: #ffcf75;
+        --danger-text: #ff8080;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Shared components: SearchBar, StatusBadge
+// ---------------------------------------------------------------------------
+
+.search-bar {
+    width: 100%;
+    padding: 6px 10px;
+    font-size: 13px;
+    color: var(--text-primary);
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    outline: none;
+
+    &::placeholder {
+        color: var(--text-secondary);
+    }
+
+    &:focus {
+        border-color: var(--accent);
+    }
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+    border-radius: 999px;
+    white-space: nowrap;
+
+    &--installed {
+        color: var(--badge-green-text);
+        background: var(--badge-green-bg);
+    }
+
+    &--update {
+        color: var(--badge-amber-text);
+        background: var(--badge-amber-bg);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Sidebar surface
+// ---------------------------------------------------------------------------
+
+.sidebar-app {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sidebar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.sidebar-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+
+    &:hover {
+        background: var(--surface-hover);
+    }
+}
+
+.sidebar-row__main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.sidebar-row__name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.sidebar-row__tagline {
+    margin: 0;
+    font-size: 11px;
+    color: var(--text-secondary);
+}

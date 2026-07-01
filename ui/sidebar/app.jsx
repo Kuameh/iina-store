@@ -1,9 +1,0 @@
-import React from "react";
-
-const App = () => (
-  <div>
-    <p>This is a sidebar view.</p>
-  </div>
-);
-
-export default App;
