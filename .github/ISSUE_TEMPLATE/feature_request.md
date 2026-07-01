@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for Iina Store
+about: Suggest an idea for IINA Store
 title: ""
 labels: enhancement
 assignees: ""

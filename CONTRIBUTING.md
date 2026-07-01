@@ -1,4 +1,4 @@
-# Contributing to Iina Store
+# Contributing to IINA Store
 
 Thanks for considering it. There are two very different ways to contribute
 here, and neither requires the other:
@@ -26,7 +26,7 @@ entries. Required fields:
 | `tags` | A few lowercase keywords |
 | `install` | `{"type": "release-asset", "assetNamePattern": "*.iinaplgz"}` if the repo publishes a GitHub Release with a `.iinaplgz` asset, otherwise `{"type": "codeload-fallback", "defaultBranch": "main"}` (or whatever the repo's actual default branch is) |
 | `update` | `{"mechanism": "none"}` unless you know the plugin declares `ghRepo`/`ghVersion` in its own `Info.json`, in which case `{"mechanism": "ghVersion", "ghRepo": "owner/repo"}` |
-| `featured`, `verifiedInstallable` | Leave both `false` unless you've actually installed it through Iina Store yourself and confirmed it works |
+| `featured`, `verifiedInstallable` | Leave both `false` unless you've actually installed it through IINA Store yourself and confirmed it works |
 | `source` | `{"type": "curated", "curatorNote": null, "addedAt": "<today, YYYY-MM-DD>"}` |
 
 Fields you don't know (`iconUrl`, `homepageUrl`, `license`, `stars`,

@@ -18,10 +18,10 @@ assignees: ""
 
 **Does it publish a GitHub Release with a `.iinaplgz` asset?**
 
-<!-- Yes/no. If no, Iina Store will fall back to installing from the
+<!-- Yes/no. If no, IINA Store will fall back to installing from the
      repo's default branch as a zip. -->
 
-**Have you personally installed and used it through Iina Store?**
+**Have you personally installed and used it through IINA Store?**
 
 <!-- If yes, note the IINA version you tested with. If no, that's fine --
      a maintainer will verify before it's marked as verified-installable. -->

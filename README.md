@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/logo.svg" width="120" height="120" alt="Iina Store logo" />
+  <img src="assets/logo.svg" width="120" height="120" alt="IINA Store logo" />
 </p>
 
-<h1 align="center">Iina Store</h1>
+<h1 align="center">IINA Store</h1>
 
 <p align="center">
   A plugin that discovers, searches, and installs other <a href="https://github.com/iina/iina">IINA</a> plugins &mdash; from inside IINA itself.
@@ -21,7 +21,7 @@ IINA has no official plugin store. Plugins are scattered across a community
 [iina/iina#5731](https://github.com/iina/iina/issues/5731) is an open,
 unanswered issue asking exactly that: "is it just serendipity based?"
 
-Iina Store is itself an IINA plugin. Install it once, and it gives you a
+IINA Store is itself an IINA plugin. Install it once, and it gives you a
 searchable, filterable catalog of other IINA plugins with one-click install
 and uninstall, right inside the app.
 
@@ -34,11 +34,11 @@ and uninstall, right inside the app.
   verification, atomic moves, no clobbering a plugin the store didn't install)
 - **Live-updating catalog** &mdash; a curated base list ships with every
   release, topped up by a daily crawl of GitHub's `iina-plugin` topic, so new
-  plugins can appear without you needing to update Iina Store itself
+  plugins can appear without you needing to update IINA Store itself
 - A companion sidebar tab for a quick glance at what's available without
   opening the full window
 
-## Installing Iina Store
+## Installing IINA Store
 
 1. Download the latest `.iinaplgz` from [Releases](https://github.com/Kuameh/iina-store/releases), or build it yourself (see below)
 2. Open it with IINA, or install it via IINA's Preferences &rarr; Plugins &rarr; install-from-GitHub-URL flow, pointing at this repo

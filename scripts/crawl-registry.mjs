@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Scheduled crawler for the Iina Store live registry overlay.
+ * Scheduled crawler for the IINA Store live registry overlay.
  *
  * Runs in GitHub Actions (see .github/workflows/crawl-registry.yml), NOT
  * inside the IINA plugin itself -- centralizing the crawl here means every

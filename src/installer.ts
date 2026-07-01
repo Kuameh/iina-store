@@ -1,5 +1,5 @@
 /**
- * Install/uninstall engine for Iina Store.
+ * Install/uninstall engine for IINA Store.
  *
  * Runs in the plugin MAIN ENTRY context (not a webview), so the ambient
  * `iina` global (typed by iina-plugin-definition) is available directly --
@@ -271,7 +271,7 @@ export async function installPlugin(
       !(existingEntry && existingEntry.folderName === folderName)
     ) {
       throw new Error(
-        `A plugin already exists at "${destPath}" and is not tracked by Iina Store as this entry. Refusing to overwrite it.`,
+        `A plugin already exists at "${destPath}" and is not tracked by IINA Store as this entry. Refusing to overwrite it.`,
       );
     }
 
@@ -331,7 +331,7 @@ export async function uninstallPlugin(
     const record = manifest.plugins[entryId];
     if (!record || record.managedByStore !== true) {
       throw new Error(
-        `Plugin "${entryId}" was not installed by Iina Store and cannot be uninstalled through it.`,
+        `Plugin "${entryId}" was not installed by IINA Store and cannot be uninstalled through it.`,
       );
     }
 
@@ -344,7 +344,7 @@ export async function uninstallPlugin(
     const infoRaw = iina.file.read(infoPath, {});
     if (!infoRaw) {
       throw new Error(
-        `Could not read Info.json at ${infoPath}; the plugin folder may have been moved or removed outside Iina Store.`,
+        `Could not read Info.json at ${infoPath}; the plugin folder may have been moved or removed outside IINA Store.`,
       );
     }
 
@@ -361,7 +361,7 @@ export async function uninstallPlugin(
       throw new Error(
         `Identifier mismatch at ${infoPath}: expected "${record.installedIdentifier}" but found "${String(
           info.identifier,
-        )}". Refusing to uninstall a folder that was modified outside Iina Store.`,
+        )}". Refusing to uninstall a folder that was modified outside IINA Store.`,
       );
     }
 

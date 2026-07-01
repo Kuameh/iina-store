@@ -1,8 +1,8 @@
 {
-  "name": "Iina Store",
+  "name": "IINA Store",
   "identifier": "com.example.iina-store",
   "version": "0.0.1",
-  "description": "Iina plugin store ",
+  "description": "IINA plugin store",
   "author": {
     "name": "Caleb Ashiangmor",
     "email": "schniffenhousen@gmail.com",
@@ -17,7 +17,7 @@
     "file-system"
   ],
   "sidebarTab": {
-    "name": "Iina Store"
+    "name": "IINA Store"
   },
   "allowedDomains": ["*"],
   "preferencesPage": "pref.html",

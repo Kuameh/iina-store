@@ -1,5 +1,5 @@
 /**
- * Shared type definitions for Iina Store.
+ * Shared type definitions for IINA Store.
  *
  * This file is the single source of truth for types shared between the
  * plugin entry script (src/*.ts, running inside IINA's JS engine) and the

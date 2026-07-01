@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Something in Iina Store isn't working right
+about: Something in IINA Store isn't working right
 title: ""
 labels: bug
 assignees: ""
@@ -24,12 +24,12 @@ What you thought should happen instead.
 
 - IINA version:
 - macOS version:
-- Iina Store version (or commit hash if built from source):
+- IINA Store version (or commit hash if built from source):
 
 **Logs**
 
 If relevant, paste anything from IINA's Window &rarr; Log Viewer under
-"Iina Store", or from Safari Web Inspector's console if the issue is visual
+"IINA Store", or from Safari Web Inspector's console if the issue is visual
 (open it via Safari &rarr; Develop menu after enabling it in Safari's
 Advanced preferences).
 
