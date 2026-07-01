@@ -45,6 +45,11 @@ const PluginDetail: React.FC<PluginDetailProps> = ({
       >
         {entry.repo}
       </a>
+      {progress?.stage === "error" && (
+        <p className="plugin-detail__error">
+          {progress.message || "Install failed for an unknown reason."}
+        </p>
+      )}
       <div className="plugin-detail__actions">
         <InstallButton
           status={status}

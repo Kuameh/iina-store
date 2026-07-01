@@ -503,13 +503,25 @@ interface ListedFile {
 /**
  * Typed wrapper around `iina.file.list`. The shipped `iina-plugin-definition`
  * `.d.ts` types this call as returning a single `{filename,path,isDir}`
- * object, but the real IINA runtime returns an array of those (confirmed by
- * IINA's own API docs and plugin ecosystem usage) -- the upstream type
- * declaration is simply wrong here. We isolate the cast to this one place
- * rather than fighting the ambient type at every call site.
+ * object; a previous pass assumed (but never confirmed against a live IINA
+ * instance) that the real runtime returns an array instead. That same kind
+ * of unverified assumption already broke registry loading once (see
+ * registry.ts's git history), so rather than guess again, this normalizes
+ * whichever shape actually comes back -- an array is used as-is, a single
+ * object is wrapped in a one-element array, and anything else (null,
+ * undefined, an unrecognizable shape) becomes an empty array rather than
+ * throwing, so a shape mismatch here degrades to "no candidate found"
+ * instead of crashing the whole install.
  */
 function listDir(path: string, options: { includeSubDir?: boolean }): ListedFile[] {
-  return iina.file.list(path, options) as unknown as ListedFile[];
+  const result: unknown = iina.file.list(path, options);
+  if (Array.isArray(result)) {
+    return result as ListedFile[];
+  }
+  if (result && typeof result === "object" && "path" in (result as Record<string, unknown>)) {
+    return [result as ListedFile];
+  }
+  return [];
 }
 
 /** Normalize away trailing slashes for prefix comparisons. */

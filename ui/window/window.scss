@@ -170,12 +170,19 @@
     right: 0;
     bottom: 0;
     width: min(360px, 100%);
+    z-index: 10;
     display: flex;
     flex-direction: column;
     gap: 10px;
     padding: 16px;
     overflow-y: auto;
-    background: var(--surface);
+    // This panel sits on top of .plugin-grid, unlike most other surfaces
+    // here which are drawn inline with nothing behind them -- it needs a
+    // near-opaque background (--overlay-surface, not --surface) or the
+    // grid's cards show straight through and both become unreadable.
+    background: var(--overlay-surface);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     border-left: 1px solid var(--border-color);
     box-shadow: -4px 0 16px rgba(0, 0, 0, 0.15);
 }
@@ -248,6 +255,16 @@
 .plugin-detail__actions {
     margin-top: auto;
     padding-top: 12px;
+}
+
+.plugin-detail__error {
+    margin: 0;
+    padding: 8px 10px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--danger-text);
+    background: var(--danger-bg);
+    border-radius: 6px;
 }
 
 // ---------------------------------------------------------------------------

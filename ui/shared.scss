@@ -48,6 +48,12 @@ body {
     --badge-amber-bg: rgba(245, 166, 35, 0.18);
     --badge-amber-text: #93650a;
     --danger-text: #d64545;
+    --danger-bg: rgba(214, 69, 69, 0.12);
+    // Unlike --surface (a subtle tint for elements sitting inline with
+    // nothing behind them), this is for position:fixed overlay panels that
+    // must actually occlude content stacked behind them -- near-opaque by
+    // design, with backdrop-filter as a nice-to-have frosted look on top.
+    --overlay-surface: rgba(246, 246, 247, 0.96);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -66,6 +72,8 @@ body {
         --badge-amber-bg: rgba(255, 189, 68, 0.22);
         --badge-amber-text: #ffcf75;
         --danger-text: #ff8080;
+        --danger-bg: rgba(255, 128, 128, 0.14);
+        --overlay-surface: rgba(30, 30, 32, 0.96);
     }
 }
 
