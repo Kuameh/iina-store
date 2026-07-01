@@ -13,7 +13,6 @@
   "permissions": [
     "show-osd",
     "show-alert",
-    "video-overlay",
     "network-request",
     "file-system"
   ],
@@ -22,5 +21,8 @@
   },
   "allowedDomains": ["*"],
   "preferencesPage": "pref.html",
-  "preferenceDefaults": {}
+  "preferenceDefaults": {
+    "showOnlyVerified": true,
+    "defaultSort": "featured"
+  }
 }
