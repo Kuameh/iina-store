@@ -12,6 +12,7 @@
  */
 
 import type { RegistryEntry, RegistryFile, SortOption } from "./types";
+import registryJson from "../resources/registry.json";
 
 // Presence of this export makes TypeScript treat the file as a module
 // (isolated scope) instead of a global script, so it doesn't collide with
@@ -19,35 +20,26 @@ import type { RegistryEntry, RegistryFile, SortOption } from "./types";
 // bundled/runtime output.
 export {};
 
-// Module-level cache, populated lazily on first call into loadRegistry().
-// Deliberately not populated at module top level: iina may not be ready at
-// pure import time, so the one iina.file.read() call in this file is
-// deferred until something actually needs the registry.
-let cachedRegistry: RegistryFile | undefined;
-
 /**
- * Reads and parses the bundled resources/registry.json.
+ * The curated catalog is static data shipped with the plugin, so it is
+ * imported directly at build time (Parcel inlines JSON imports into the
+ * bundle) rather than read at runtime via iina.file.read(). An earlier
+ * version of this file tried the runtime-read approach with a plain
+ * relative path ("resources/registry.json"), and that path resolution
+ * turned out not to work against a live IINA instance -- the catalog came
+ * back empty. Importing the JSON removes that runtime path-resolution
+ * question entirely: this data is simply part of the compiled dist/index.js
+ * bundle, no file I/O involved.
  *
- * The path passed to iina.file.read() ("resources/registry.json") is
- * relative to the plugin package root. That relative-path resolution
- * behavior is a reasonable assumption based on how other plugin file paths
- * are documented, but it has not been verified against a running IINA
- * instance -- if plugin-root-relative resolution turns out to work
- * differently, only this function needs to change.
+ * The cast is `as unknown as RegistryFile` because TypeScript infers plain
+ * `string` for the JSON's enum-like fields (e.g. category, install.type)
+ * rather than the narrower literal unions declared in RegistryEntry -- the
+ * actual JSON contents are still validated by the registry-build tooling
+ * and Info.json-identifier cross-checks in installer.ts at install time.
  */
+const cachedRegistry = registryJson as unknown as RegistryFile;
+
 function loadRegistry(): RegistryFile {
-  if (cachedRegistry !== undefined) {
-    return cachedRegistry;
-  }
-
-  const raw = iina.file.read("resources/registry.json", {});
-  if (raw === undefined) {
-    throw new Error(
-      "registry: failed to read resources/registry.json via iina.file.read",
-    );
-  }
-
-  cachedRegistry = JSON.parse(raw) as RegistryFile;
   return cachedRegistry;
 }
 
