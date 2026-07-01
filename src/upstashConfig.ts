@@ -8,16 +8,15 @@
  * (UPSTASH_REDIS_REST_WRITE_TOKEN), used exclusively by
  * scripts/crawl-registry.mjs, and is never embedded in plugin code.
  *
- * TODO: replace the two placeholder values below with the real Upstash
- * REST URL and read-only token before building/shipping a release --
- * until then, liveRegistry.ts's fetches will fail closed (caught, logged,
- * ignored) and the plugin simply falls back to the bundled registry, same
- * as before this feature existed.
+ * The token below was verified against the live Upstash REST API before
+ * being committed: a GET succeeded and a SET was rejected with NOPERM,
+ * confirming it is genuinely read-only and safe to ship publicly.
  */
 
-export const UPSTASH_REST_URL = "REPLACE_WITH_UPSTASH_REST_URL";
+export const UPSTASH_REST_URL = "https://usable-monkfish-125318.upstash.io";
 
-export const UPSTASH_READONLY_TOKEN = "REPLACE_WITH_UPSTASH_READONLY_TOKEN";
+export const UPSTASH_READONLY_TOKEN =
+  "ggAAAAAAAemGAAIgcDErSuMREHyQp3sQPQGn1e5ZSMfoB1oZi6j4WjSaHE2e1g";
 
 /** Single Redis key holding the entire live-overlay RegistryFile as a JSON string. */
 export const REGISTRY_KEY = "iina-store:registry:v1";
