@@ -230,8 +230,7 @@ export async function installPlugin(
       );
     }
 
-    const extracted = listDir(quarantineDir, { includeSubDir: true });
-    assertNoPathTraversal(extracted, quarantineDir);
+    const extracted = listDirAbsolute(quarantineDir, { includeSubDir: true });
 
     // (6) locate exactly one directory containing a top-level Info.json.
     const candidateDir = findSingleCandidateDir(extracted, quarantineDir);
@@ -560,18 +559,34 @@ function joinPath(dir: string, name: string): string {
   return normalizeDir(dir) + "/" + name;
 }
 
-function assertNoPathTraversal(entries: ListedFile[], quarantineDir: string): void {
-  const prefix = normalizeDir(quarantineDir);
-  for (const e of entries) {
-    const normalized = normalizeDir(e.path);
-    if (normalized !== prefix && !normalized.startsWith(prefix + "/")) {
-      // Best-effort cleanup before aborting.
-      safeDelete(quarantineDir);
+/**
+ * List a directory tree, validate it for path-traversal, and return entries
+ * with `.path` rewritten to absolute paths.
+ *
+ * Confirmed live: `iina.file.list(baseDir, ...)` returns each entry's
+ * `.path` RELATIVE to `baseDir` (e.g. "xegq5kge/ui"), not an absolute path.
+ * An earlier version of this code assumed absolute paths and checked
+ * whether each one started with the absolute quarantine-dir prefix -- a
+ * check a relative path can never pass, so it flagged every single
+ * extraction as a false-positive traversal attempt. The real traversal
+ * check has to happen on the RAW relative path instead: reject anything
+ * that is itself absolute, or that contains a ".." segment, before joining
+ * it onto `baseDir`. Once validated, `.path` is rewritten to absolute here
+ * so every other function in this file (which expects absolute paths) is
+ * unaffected by this distinction.
+ */
+function listDirAbsolute(baseDir: string, options: { includeSubDir?: boolean }): ListedFile[] {
+  const base = normalizeDir(baseDir);
+  return listDir(baseDir, options).map((entry) => {
+    const relative = entry.path;
+    if (relative.startsWith("/") || relative.split("/").includes("..")) {
+      safeDelete(baseDir);
       throw new Error(
-        `Extraction produced a path outside the quarantine directory ("${e.path}"); aborting as a possible path traversal attempt.`,
+        `Extraction produced an unsafe path ("${relative}"); aborting as a possible path traversal attempt.`,
       );
     }
-  }
+    return { ...entry, path: joinPath(base, relative) };
+  });
 }
 
 function findSingleCandidateDir(entries: ListedFile[], quarantineDir: string): string {
