@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { sendRequest, subscribe } from "../shared/bridge";
+import { sendRequest, subscribe, postOnly } from "../shared/bridge";
 import type {
   RegistryEntry,
   InstallStatus,
@@ -143,6 +143,14 @@ const App: React.FC = () => {
     sendRequest("install:uninstall", { id });
   }, []);
 
+  const handleRestartNow = useCallback(() => {
+    postOnly("app:restart", {});
+  }, []);
+
+  const handleOpenRepo = useCallback((url: string) => {
+    postOnly("app:open-url", { url });
+  }, []);
+
   const selectedEntry = useMemo(
     () => entries.find((entry) => entry.id === selectedEntryId) ?? null,
     [entries, selectedEntryId],
@@ -165,6 +173,7 @@ const App: React.FC = () => {
       <RestartPrompt
         visible={restartVisible && !restartDismissed}
         onDismiss={() => setRestartDismissed(true)}
+        onRestartNow={handleRestartNow}
       />
       <PluginGrid
         entries={entries}
@@ -179,6 +188,7 @@ const App: React.FC = () => {
           onInstall={() => handleInstall(selectedEntry.id)}
           onUninstall={() => handleUninstall(selectedEntry.id)}
           onClose={() => setSelectedEntryId(null)}
+          onOpenRepo={handleOpenRepo}
         />
       )}
     </div>

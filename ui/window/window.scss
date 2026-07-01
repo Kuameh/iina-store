@@ -65,21 +65,64 @@
 // ---------------------------------------------------------------------------
 
 .restart-prompt {
+    // Fixed + high z-index rather than inline in the normal document flow:
+    // PluginDetail (z-index 10) is always open at the moment an install/
+    // uninstall completes -- that's where the Install/Uninstall button
+    // lives -- so an inline banner further up the page was ending up
+    // visually covered by it. Floating this above everything (including
+    // PluginDetail) fixes that regardless of what else is open.
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    z-index: 30;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 8px 12px;
+    padding: 10px 14px;
     font-size: 12px;
+    line-height: 1.4;
     color: var(--text-primary);
-    background: var(--badge-amber-bg);
-    border: 1px solid var(--border-color);
+    // Same near-opaque overlay treatment as .plugin-detail, not the subtle
+    // --badge-amber-bg tint used for inline decoration elsewhere -- this
+    // banner can float on top of either the grid or the detail panel and
+    // needs to stay legible against whatever's behind it.
+    background: var(--overlay-surface);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--badge-amber-text);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.restart-prompt__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.restart-prompt__restart {
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--accent-contrast);
+    background: var(--accent);
+    border: none;
     border-radius: 6px;
+    cursor: pointer;
+
+    &:hover {
+        opacity: 0.9;
+    }
 }
 
 .restart-prompt__dismiss {
     padding: 2px 8px;
     font-size: 12px;
+    white-space: nowrap;
     color: var(--text-secondary);
     background: transparent;
     border: none;

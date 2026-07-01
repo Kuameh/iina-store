@@ -36,9 +36,15 @@ import {
   SortOption,
 } from "./types";
 
-const { standaloneWindow, sidebar, event, console, menu, preferences } = iina;
+const { standaloneWindow, sidebar, event, console, menu, preferences, utils } = iina;
 
 const SORT_OPTIONS: SortOption[] = ["name", "stars", "recency", "featured"];
+
+// IINA's own bundle identifier (this is the same constant already relied on
+// for the plugins directory path in installer.ts) -- used to open/quit IINA
+// by id rather than by display name, since a bundle id can't be renamed out
+// from under this code the way an app's display name theoretically could.
+const IINA_BUNDLE_ID = "com.colliderli.iina";
 
 /** Whether the catalog should be filtered down to verifiedInstallable-only entries. */
 function shouldShowOnlyVerified(): boolean {
@@ -269,6 +275,68 @@ function handleWindowFocusEntry(_surface: Surface, data: any): void {
   }
 }
 
+function handleOpenUrl(_surface: Surface, data: any): void {
+  // Sent fire-and-forget (postOnly); no reply expected. A plain <a
+  // target="_blank"> inside a plugin webview does not hand off to the
+  // system browser -- these are embedded webviews, not full browser chrome
+  // (confirmed live: clicking a repo link did nothing) -- so links are
+  // routed through here instead.
+  //
+  // GitHub's current iina-plugin-definition source documents a
+  // utils.open(url) method for exactly this, but the actually-installed
+  // package version (0.0.7, see node_modules) predates it -- its Utils
+  // interface doesn't have `open` at all, and there's no way to confirm
+  // the running IINA build implements it either. Rather than depend on an
+  // unconfirmed API, this uses exec() (already proven working throughout
+  // installer.ts in this exact IINA install) to invoke macOS's own
+  // /usr/bin/open, which achieves the identical "open in default browser"
+  // outcome through a primitive already known to work here.
+  try {
+    const url = data?.payload?.url ?? data?.url;
+    if (!url || typeof url !== "string" || !/^https?:\/\//i.test(url)) {
+      throw new Error(`app:open-url requires an http(s) url, got: ${String(url)}`);
+    }
+    utils.exec("/usr/bin/open", [url]).catch((err) => {
+      console.log(`app:open-url exec failed: ${errorMessage(err)}`);
+    });
+  } catch (err) {
+    console.log(`app:open-url failed: ${errorMessage(err)}`);
+  }
+}
+
+/**
+ * There is no documented IINA plugin API to restart or quit the app --
+ * confirmed by searching iina-plugin-definition's full type declarations,
+ * nothing like it exists. This is a best-effort trick, not an official
+ * capability: schedule a detached relaunch-after-delay (so it survives
+ * this process quitting), then gracefully ask the current instance to quit
+ * via AppleScript. Both steps address IINA by bundle id, not display name.
+ *
+ * The relaunch job is backgrounded with `nohup` (a real, universally
+ * available command) rather than the shell builtin `disown`, since which
+ * shell /bin/sh actually resolves to isn't guaranteed across macOS
+ * versions and not all of them support `disown`.
+ */
+function handleRestartApp(_surface: Surface, _data: any): void {
+  utils
+    .exec("/bin/sh", [
+      "-c",
+      `nohup /bin/sh -c "sleep 2 && /usr/bin/open -b ${IINA_BUNDLE_ID}" >/dev/null 2>&1 &`,
+    ])
+    .then((scheduleResult) => {
+      if (scheduleResult.status !== 0) {
+        throw new Error(`failed to schedule relaunch: ${scheduleResult.stderr}`);
+      }
+      return utils.exec("/usr/bin/osascript", [
+        "-e",
+        `tell application id "${IINA_BUNDLE_ID}" to quit`,
+      ]);
+    })
+    .catch((err) => {
+      console.log(`app:restart failed: ${errorMessage(err)}`);
+    });
+}
+
 // ---------------------------------------------------------------------------
 // Registration -- identical handlers wired to both surfaces.
 // ---------------------------------------------------------------------------
@@ -281,6 +349,8 @@ function registerHandlers(surface: Surface): void {
   surface.onMessage("install:uninstall", (data: any) => handleInstallUninstall(surface, data));
   surface.onMessage("install:status", (data: any) => handleInstallStatus(surface, data));
   surface.onMessage("window:focus-entry", (data: any) => handleWindowFocusEntry(surface, data));
+  surface.onMessage("app:open-url", (data: any) => handleOpenUrl(surface, data));
+  surface.onMessage("app:restart", (data: any) => handleRestartApp(surface, data));
 }
 
 console.log("Plugin is running");

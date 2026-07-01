@@ -9,6 +9,7 @@ export interface PluginDetailProps {
   onInstall: () => void;
   onUninstall: () => void;
   onClose: () => void;
+  onOpenRepo: (url: string) => void;
 }
 
 /** Full detail panel for a single plugin: description, repo link, tags, install controls. */
@@ -19,6 +20,7 @@ const PluginDetail: React.FC<PluginDetailProps> = ({
   onInstall,
   onUninstall,
   onClose,
+  onOpenRepo,
 }) => {
   return (
     <div className="plugin-detail">
@@ -37,11 +39,21 @@ const PluginDetail: React.FC<PluginDetailProps> = ({
           </span>
         ))}
       </div>
+      {/*
+        A plain target="_blank" link does nothing inside this embedded
+        webview (confirmed live) -- there's no system browser hand-off
+        without going through the entry script's iina.utils.open(). Kept
+        as a real <a href> for hover/inspect/right-click-copy-link
+        semantics, but the click itself is intercepted and routed through
+        onOpenRepo instead of letting the webview handle it natively.
+      */}
       <a
         className="plugin-detail__repo-link"
         href={entry.repoUrl}
-        target="_blank"
-        rel="noopener noreferrer"
+        onClick={(event) => {
+          event.preventDefault();
+          onOpenRepo(entry.repoUrl);
+        }}
       >
         {entry.repo}
       </a>

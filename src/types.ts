@@ -262,6 +262,35 @@ export interface WindowFocusEntryReply {
   payload: {};
 }
 
+/**
+ * Ask the entry script to open a URL (e.g. a plugin's repo link) in the
+ * system's default browser via `iina.utils.open()`. A plain `<a
+ * target="_blank">` inside a plugin webview does not hand off to the
+ * system browser -- webviews here are embedded, not full browser chrome --
+ * so links must be routed through the entry script instead. Sent
+ * fire-and-forget (postOnly), no reply expected.
+ */
+export interface AppOpenUrlRequest {
+  type: "app:open-url";
+  requestId: string;
+  payload: {
+    url: string;
+  };
+}
+
+/**
+ * Ask the entry script to restart IINA (quit the current instance and
+ * relaunch it), offered as a one-click follow-up to a completed
+ * install/uninstall instead of making the user do it manually. Sent
+ * fire-and-forget (postOnly) since there is nothing to reply to once the
+ * app is quitting.
+ */
+export interface AppRestartRequest {
+  type: "app:restart";
+  requestId: string;
+  payload: {};
+}
+
 /** Generic failure reply, usable in place of any of the `ok: true` replies above. */
 export interface ErrorReply {
   type: string;
@@ -278,7 +307,9 @@ export type BridgeRequest =
   | InstallStartRequest
   | InstallUninstallRequest
   | InstallStatusRequest
-  | WindowFocusEntryRequest;
+  | WindowFocusEntryRequest
+  | AppOpenUrlRequest
+  | AppRestartRequest;
 
 /** Union of every reply the plugin entry script can send back. */
 export type BridgeReply =
